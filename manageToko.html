@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Produk</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px;
+        }
+
+        button {
+            padding: 8px 15px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #ddd;
+        }
+
+        #pesan {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Manajemen Produk Toko Online</h1>
+
+    <h3>Tambah Produk</h3>
+
+    <input type="text" id="namaProduk" placeholder="Nama Produk">
+
+    <input type="number" id="hargaProduk" placeholder="Harga">
+
+    <button id="btnTambah">Tambah Produk</button>
+
+    <button id="btnTampilkan">Tampilkan Semua Produk</button>
+
+    <h3>Hapus Produk</h3>
+
+    <input type="number" id="idHapus" placeholder="ID Produk">
+
+    <button id="btnHapus">Hapus Produk</button>
+
+    <p id="pesan"></p>
+
+    <div id="daftarProduk"></div>
+
+
+    <script>
+
+        // ==========================================
+        // DATA PRODUK AWAL
+        // ==========================================
+
+        let produkList = [
+            { id: 1, nama: "Laptop", harga: 12000000 },
+            { id: 2, nama: "Smartphone", harga: 5000000 },
+            { id: 3, nama: "Tablet", harga: 7000000 },
+            { id: 4, nama: "Mouse", harga: 250000 },
+            { id: 5, nama: "Keyboard", harga: 500000 }
+        ];
+
+
+        // ==========================================
+        // EVENT LISTENER
+        // ==========================================
+
+        const eventHandler = {
+            tambah: "Produk berhasil ditambahkan!",
+            hapus: "Produk berhasil dihapus!"
+        };
+
+
+        // ==========================================
+        // MENAMBAHKAN PRODUK DENGAN SPREAD OPERATOR
+        // ==========================================
+
+        function tambahProduk(id, nama, harga) {
+
+            // Spread Operator digunakan untuk menambahkan
+            // object produk baru ke dalam array
+            produkList = [
+                ...produkList,
+                {
+                    id,
+                    nama,
+                    harga
+                }
+            ];
+
+            document.getElementById("pesan").innerText =
+                eventHandler.tambah;
+
+            tampilkanProduk();
+        }
+
+
+        // ==========================================
+        // MENGHAPUS PRODUK DENGAN REST PARAMETER
+        // ==========================================
+
+        function hapusProduk(...idProduk) {
+
+            // Rest Parameter menerima satu atau beberapa ID
+            produkList = produkList.filter(
+                produk => !idProduk.includes(produk.id)
+            );
+
+            document.getElementById("pesan").innerText =
+                eventHandler.hapus;
+
+            tampilkanProduk();
+        }
+
+
+        // ==========================================
+        // MENAMPILKAN PRODUK DENGAN DESTRUCTURING
+        // ==========================================
+
+        function tampilkanProduk() {
+
+            let output = `
+                <table>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nama Produk</th>
+                        <th>Harga</th>
+                    </tr>
+            `;
+
+            produkList.forEach(produk => {
+
+                // Destructuring Object
+                const { id, nama, harga } = produk;
+
+                output += `
+                    <tr>
+                        <td>${id}</td>
+                        <td>${nama}</td>
+                        <td>Rp ${harga.toLocaleString("id-ID")}</td>
+                    </tr>
+                `;
+            });
+
+            output += `</table>`;
+
+            document.getElementById("daftarProduk").innerHTML = output;
+        }
+
+
+        // ==========================================
+        // EVENT LISTENER TOMBOL TAMBAH
+        // ==========================================
+
+        document.getElementById("btnTambah")
+            .addEventListener("click", function () {
+
+                const nama = document.getElementById("namaProduk").value;
+                const harga = Number(
+                    document.getElementById("hargaProduk").value
+                );
+
+                if (nama === "" || harga === 0) {
+                    document.getElementById("pesan").innerText =
+                        "Nama dan harga produk harus diisi!";
+                    return;
+                }
+
+                // Membuat ID baru
+                const idBaru = produkList.length > 0
+                    ? Math.max(...produkList.map(produk => produk.id)) + 1
+                    : 1;
+
+                tambahProduk(idBaru, nama, harga);
+
+                // Mengosongkan input
+                document.getElementById("namaProduk").value = "";
+                document.getElementById("hargaProduk").value = "";
+            });
+
+
+        // ==========================================
+        // EVENT LISTENER TOMBOL HAPUS
+        // ==========================================
+
+        document.getElementById("btnHapus")
+            .addEventListener("click", function () {
+
+                const id = Number(
+                    document.getElementById("idHapus").value
+                );
+
+                if (id === 0) {
+                    document.getElementById("pesan").innerText =
+                        "Masukkan ID produk yang ingin dihapus!";
+                    return;
+                }
+
+                const produkAda = produkList.some(
+                    produk => produk.id === id
+                );
+
+                if (!produkAda) {
+                    document.getElementById("pesan").innerText =
+                        "Produk dengan ID tersebut tidak ditemukan!";
+                    return;
+                }
+
+                hapusProduk(id);
+
+                document.getElementById("idHapus").value = "";
+            });
+
+
+        // ==========================================
+        // EVENT LISTENER TOMBOL TAMPILKAN
+        // ==========================================
+
+        document.getElementById("btnTampilkan")
+            .addEventListener("click", function () {
+                tampilkanProduk();
+            });
+
+
+        // ==========================================
+        // MENAMPILKAN DATA SAAT HALAMAN DIBUKA
+        // ==========================================
+
+        tampilkanProduk();
+
+    </script>
+
+</body>
+</html>
